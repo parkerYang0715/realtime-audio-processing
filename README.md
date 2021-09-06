@@ -10,5 +10,15 @@ eg.
     outData = signal.lfilter(delay_b, [1], samples_in2 )  # filter   
     #outData = outData.astype(np.int16)    
     outData = np.chararray.tobytes(outData.astype(np_type))  # convert the data type back to "bytes"     
-    
+    -7720
 Note3: len(data) = 2*len( np.frombuffer(data) )  
+eg.   
+x = b'\xd8\xe1\xb7\xeb'
+>>> len(x)-
+OUTPUT: 4
+>>> import numpy as np
+>>> y=np.frombuffer(x,dtype = np.int16)
+>>> y
+OUTPUT: array([-7720, -5193], dtype=int16)
+>>> len(y)
+OUTPUT: 2
