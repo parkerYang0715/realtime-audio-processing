@@ -22,3 +22,6 @@ OUTPUT: 4
 OUTPUT: array([-7720, -5193], dtype=int16)    
 >>> len(y)    
 OUTPUT: 2    
+
+file2: test_20210907_record_and_playMusic.py
+ref: https://medium.com/geekculture/real-time-audio-wave-visualization-in-python-b1c5b96e2d39
