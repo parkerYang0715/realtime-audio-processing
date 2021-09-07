@@ -25,3 +25,6 @@ OUTPUT: 2
 
 file2: test_20210907_record_and_playMusic.py
 ref: https://medium.com/geekculture/real-time-audio-wave-visualization-in-python-b1c5b96e2d39
+ref of simpleGUI graph:     
+https://www.blog.pythonlibrary.org/2019/10/31/the-demos-for-pysimplegui/      
+https://medium.com/geekculture/custom-made-plots-in-python-with-pysimplegui-9f7618fab8d5       
