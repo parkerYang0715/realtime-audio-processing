@@ -144,10 +144,6 @@ while True:
         # Redraw plot
         graph.erase()
         drawAxis()
-
-        # Here we go through the points in the audioData object and draw them
-        # Note that we are rescaling ( dividing by 100 ) and centering (+50 )
-        # try different values to get a feel for what they do.
           
         for x in range(CHUNK):
             graph.DrawCircle((x, _VARS['NearEndData'][x] ), 0.4, line_color='blue', fill_color='blue' )
