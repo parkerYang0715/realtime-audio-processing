@@ -2,8 +2,8 @@ import PySimpleGUI as sg
 import pyaudio  #record /play stream
 import numpy as np
 import wave  # read far end wav file
-#import simpleaudio as sa  #play music
-## RealTime Audio Waveform plot 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # VARS CONSTS:
 _VARS = {'window': False,
@@ -12,7 +12,11 @@ _VARS = {'window': False,
             'NearEndData': np.array([]), #near end (plot)  # from recording
             'FarEndData': np.array([]), #far end (plot)       # from wav file
             'errOut': np.array([]),  #AEC output (plot)
-            'wf_far': False   #far end wav file object
+            'wf_far': False,   #far end wav file object
+            'fig_agg': False,
+            'pltFig': False,
+            'xData': False,
+            'yData': False
             }
 
 # pysimpleGUI INIT:
@@ -22,15 +26,17 @@ sg.theme('LightBlue3') # LightBlue3 # DarkBlack  #DarkBlue3
 CHUNK = 1024  # Samples: 1024,  512, 256, 128
 RATE =16000# 44100  # Equivalent to Human Hearing at 40 kHz
 INTERVAL = 1  # Sampling Interval in Seconds ie Interval to listen
-TIMEOUT = 10  # In ms for the event loop
+TIMEOUT = 20  # In ms for the event loop
 SIZE_X= CHUNK
-SIZE_Y=20000
+SIZE_Y=32767
 
-layout = [[sg.Graph(canvas_size=(800, 600),
-                    graph_bottom_left=(-5, -SIZE_Y-1),
-                    graph_top_right=(SIZE_X+5, SIZE_Y+1),
-                    background_color='white',
-                    key='graph')],
+layout = [  [sg.Canvas(key='figCanvas')],   # for matplotlib
+                    #[sg.Graph(canvas_size=(800, 600),   # for simpleGUI graph
+                    #graph_bottom_left=(-5, -SIZE_Y-1),
+                    #graph_top_right=(SIZE_X+5, SIZE_Y+1),
+                    #background_color='white',
+                    #key='graph')],
+          
                     [sg.ProgressBar(4000, orientation='h',
                     size=(20, 20), key='-PROG-')],
                     [sg.Button('Listen', font=AppFont),
@@ -39,37 +45,49 @@ layout = [[sg.Graph(canvas_size=(800, 600),
                     [sg.Text('Choose wav files',size=(18, 1), font=AppFont)],
                     [sg.Combo(['pno','sp01_speech_16k','sineWav400Hz'], default_value='sp01_speech_16k',size=(16, 1), font=AppFont, key='farendFile') ]
             ]
-_VARS['window'] = sg.Window('Mic to waveform plot + Max Level',
-                            layout, finalize=True)
+#_VARS['window'] = sg.Window('Mic to waveform plot + Max Level', layout, finalize=True)
+_VARS['window'] = sg.Window('Microphone Waveform Pyplot',
+                            layout, finalize=True,
+                            location=(400, 100))
 
-graph = _VARS['window']['graph']
+#graph = _VARS['window']['graph']  # for simpleGUI graph
 
 
 pAud = pyaudio.PyAudio()  #for near end playing
 farpAud  = pyaudio.PyAudio()  #for far end playing
 
-# FUNCTIONS:
-
 # PYSIMPLEGUI PLOTS
-NUMBER_MARKER_FREQUENCY = 100
-def drawAxis(dataRangeMin=0, dataRangeMax=100):
-    # Y Axis
-    #graph.DrawLine((0, 50), (100, 50))
-    # X Axis
-    #graph.DrawLine((0, dataRangeMin), (0, dataRangeMax))
-    
-    graph.draw_line((0,0), (SIZE_X, 0))                # axis lines
-    graph.draw_line((0, -SIZE_Y), (0, SIZE_Y))
-    for x in range(0, SIZE_X+1, NUMBER_MARKER_FREQUENCY):
-        graph.draw_line((x, -250), (x, 250))                       # tick marks
-        if x < 1000:
-            # numeric labels
-            graph.draw_text(str(x), (x, -888), color='green')
-    #for y in range(-SIZE_Y, SIZE_Y+1, NUMBER_MARKER_FREQUENCY):
-    #    graph.draw_line((-3, y), (3, y))
-    #    if y != 0:
-     #       graph.draw_text(str(y), (-10, y), color='blue')
+#NUMBER_MARKER_FREQUENCY = 100
+#def drawAxis(dataRangeMin=0, dataRangeMax=100):      # for simpleGUI graph
+#    graph.draw_line((0,0), (SIZE_X, 0))          # axis lines
+#    graph.draw_line((0, -SIZE_Y), (0, SIZE_Y))
+#    for x in range(0, SIZE_X+1, NUMBER_MARKER_FREQUENCY):
+#        graph.draw_line((x, -250), (x, 250)) 
+#        if x < 1000:
+#            graph.draw_text(str(x), (x, -888), color='green') # numeric labels
 
+# \\  -------- PYPLOT -------- //  # for matplotlib
+def draw_figure(canvas, figure):
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+    figure_canvas_agg.draw()
+    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    return figure_canvas_agg
+
+def drawPlot():
+    _VARS['pltFig'] = plt.figure()
+    plt.plot(_VARS['xData'], _VARS['yData'], '--k')
+    plt.ylim(-SIZE_Y, SIZE_Y)
+    _VARS['fig_agg'] = draw_figure( _VARS['window']['figCanvas'].TKCanvas, _VARS['pltFig'])
+
+def updatePlot(nearend, farend):
+    _VARS['fig_agg'].get_tk_widget().forget()
+    plt.cla()   # Clear axis
+    plt.clf()    # Clears the entire current figure
+    plt.plot(_VARS['xData'],  farend, 'k')
+    plt.plot(_VARS['xData'], nearend, '--r')
+    plt.ylim(-SIZE_Y,SIZE_Y)
+    _VARS['fig_agg'] = draw_figure( _VARS['window']['figCanvas'].TKCanvas, _VARS['pltFig'])
+# \\  -------- PYPLOT -------- //
 
 def stop():
     if _VARS['recordStream']:
@@ -116,10 +134,14 @@ def listen():
     _VARS['playStream'].start_stream()
 
 
-# INIT:
+# INIT simpleGUI graph:
+# drawAxis()  # for simpleGUI graph
 
-drawAxis()
-
+# INIT Pyplot:
+plt.style.use('ggplot')     # for matplotlib
+_VARS['xData'] = np.linspace(0, CHUNK, num=CHUNK, dtype=int)
+_VARS['yData'] = np.zeros(CHUNK)
+drawPlot()   # for matplotlib
 
 # MAIN LOOP
 while True:
@@ -134,23 +156,22 @@ while True:
     if event == 'Stop':
         stop()
 
-    # Along with the global audioData variable, this\
-    # bit updates the waveform plot, left it here for
-    # explanatory purposes, but could be a method.
 
     #elif _VARS['NearEndData'].size != 0:
     elif _VARS['FarEndData'].size >1020:
         # Update volumne meter
-        _VARS['window']['-PROG-'].update(np.amax(_VARS['NearEndData']))  # show near end volumne 
+        _VARS['window']['-PROG-'].update(np.amax(_VARS['NearEndData']))  # show near end volumne
+
+        updatePlot(_VARS['NearEndData'],_VARS['FarEndData'])     # for matplotlib   
         # Redraw plot
-        graph.erase()
-        drawAxis()
+        #graph.erase()   # for simpleGUI graph
+        #drawAxis()  # for simpleGUI graph
 
-        for x in range(CHUNK):
-            graph.DrawCircle((x, _VARS['NearEndData'][x] ), 0.4, line_color='blue', fill_color='blue' )
-        #if(_VARS['FarEndData'].size>1023):
-        for x in range(CHUNK):
-            graph.DrawCircle((x, _VARS['FarEndData'][x] ), 0.4, line_color='red', fill_color='red' )
-
+        #for x in range(CHUNK):     # for simpleGUI graph
+        #    graph.DrawCircle((x, _VARS['NearEndData'][x] ), 0.4, line_color='blue', fill_color='blue' )
+        #if(_VARS['FarEndData'].size>1023):   # for simpleGUI graph
+        #    for x in range(CHUNK):                 # for simpleGUI graph
+        #        graph.DrawCircle((x, _VARS['FarEndData'][x] ), 0.4, line_color='red', fill_color='red' )
+        
 
 _VARS['window'].close()
