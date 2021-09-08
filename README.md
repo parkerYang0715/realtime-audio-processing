@@ -34,15 +34,15 @@ ref: https://www.geeksforgeeks.org/how-to-update-a-plot-in-matplotlib/
 
 
 how to write output to pyaudio for stereo    
-data = wf.readframes(frame_count)  # = ch1[0],ch2[0], ch1[1],ch2[1] , ... , ch1[1023],ch2[1023]
-ch = np.frombuffer(data, dtype=np.int16)
-#print(type(data))  # <class 'bytes'>
-#print(type(ch))     # <class 'numpy.ndarray'>
-#print(len(data))  #4096  # stereo
-#print(len(ch))     #2048  # stereo
-#print(ch[0])   # = ch1[0]
-#print(ch[1])   # = ch2[0]
-#print(ch[2])   # = ch1[1]
-#print(ch[3])   # = ch2[1]
-#print(ch[4])   # = ch1[2]
-#print(ch[5])   # = ch2[2]
+data = wf.readframes(frame_count)  # = ch1[0],ch2[0], ch1[1],ch2[1] , ... , ch1[1023],ch2[1023]     
+ch = np.frombuffer(data, dtype=np.int16)    
+#print(type(data))  # <class 'bytes'>    
+#print(type(ch))     # <class 'numpy.ndarray'>   
+#print(len(data))  #4096  # stereo   
+#print(len(ch))     #2048  # stereo   
+#print(ch[0])   # = ch1[0]   
+#print(ch[1])   # = ch2[0]   
+#print(ch[2])   # = ch1[1]   
+#print(ch[3])   # = ch2[1]    
+#print(ch[4])   # = ch1[2]   
+#print(ch[5])   # = ch2[2]   
