@@ -14,13 +14,13 @@ eg.
 Note3: len(data) = 2*len( np.frombuffer(data) )  
 eg.     
 x = b'\xd8\xe1\xb7\xeb'   
->>> len(x)   
+len(x)   
 OUTPUT: 4     
->>> import numpy as np    
->>> y=np.frombuffer(x,dtype = np.int16)    
->>> y    
+import numpy as np    
+y=np.frombuffer(x,dtype = np.int16)    
+y    
 OUTPUT: array([-7720, -5193], dtype=int16)    
->>> len(y)    
+len(y)    
 OUTPUT: 2    
    
 file2: test_20210907_record_and_playMusic.py   
@@ -31,3 +31,18 @@ https://medium.com/geekculture/custom-made-plots-in-python-with-pysimplegui-9f76
      
 file3: test_20210907_record_and_playMusic_v2.py   (improve the matplot update method based on the following ref.)     
 ref: https://www.geeksforgeeks.org/how-to-update-a-plot-in-matplotlib/  
+
+
+how to write output to pyaudio for stereo    
+data = wf.readframes(frame_count)  # = ch1[0],ch2[0], ch1[1],ch2[1] , ... , ch1[1023],ch2[1023]
+ch = np.frombuffer(data, dtype=np.int16)
+#print(type(data))  # <class 'bytes'>
+#print(type(ch))     # <class 'numpy.ndarray'>
+#print(len(data))  #4096  # stereo
+#print(len(ch))     #2048  # stereo
+#print(ch[0])   # = ch1[0]
+#print(ch[1])   # = ch2[0]
+#print(ch[2])   # = ch1[1]
+#print(ch[3])   # = ch2[1]
+#print(ch[4])   # = ch1[2]
+#print(ch[5])   # = ch2[2]
