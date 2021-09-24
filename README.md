@@ -48,6 +48,7 @@ ch = np.frombuffer(data, dtype=np.int16)
 #print(ch[5])   # = ch2[2]   
 
 # Device setting   
+see deviceChoice_practice.py    
 pAud = pyaudio.PyAudio()  #for near end playing
 pAud.get_default_output_device_info()   
 info = pAud.get_host_api_info_by_index(0)   
@@ -59,7 +60,7 @@ for i in range (0,numdevices):
 &nbsp;&nbsp;if pAud.get_device_info_by_host_api_device_index(0,i).get('maxOutputChannels')>0:     
 &nbsp;&nbsp;&nbsp;&nbsp;print("Output Device id ", i, " - ", pAud.get_device_info_by_host_api_device_index(0,i).get('name'))       
 
-ref: https://people.csail.mit.edu/hubert/pyaudio/docs/#class-stream
+ref: https://people.csail.mit.edu/hubert/pyaudio/docs/#class-stream     
 PA_manager – A reference to the managing PyAudio instance   
 rate – Sampling rate   
 channels – Number of channels   
