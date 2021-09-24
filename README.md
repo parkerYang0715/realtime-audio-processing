@@ -40,9 +40,32 @@ ch = np.frombuffer(data, dtype=np.int16)
 #print(type(ch))     # <class 'numpy.ndarray'>   
 #print(len(data))  #4096  # stereo   
 #print(len(ch))     #2048  # stereo   
-#print(ch[0])   # = ch1[0]   
-#print(ch[1])   # = ch2[0]   
-#print(ch[2])   # = ch1[1]   
-#print(ch[3])   # = ch2[1]    
-#print(ch[4])   # = ch1[2]   
+#print(ch[0])   # = ch1[0]     
+#print(ch[1])   # = ch2[0]     
+#print(ch[2])   # = ch1[1]     
+#print(ch[3])   # = ch2[1]      
+#print(ch[4])   # = ch1[2]     
 #print(ch[5])   # = ch2[2]   
+
+# Device setting   
+pAud = pyaudio.PyAudio()  #for near end playing
+pAud.get_default_output_device_info()   
+info = pAud.get_host_api_info_by_index(0)   
+numdevices = info.get('deviceCount')    
+for i in range (0,numdevices):    
+&nbsp;&nbsp;if pAud.get_device_info_by_host_api_device_index(0,i).get('maxInputChannels')>0:   
+&nbsp;&nbsp;&nbsp;&nbsp;print("Input Device id ", i, " - ", pAud.get_device_info_by_host_api_device_index(0,i).get('name'))   
+  
+&nbsp;&nbsp;if pAud.get_device_info_by_host_api_device_index(0,i).get('maxOutputChannels')>0:     
+&nbsp;&nbsp;&nbsp;&nbsp;print("Output Device id ", i, " - ", pAud.get_device_info_by_host_api_device_index(0,i).get('name'))       
+
+ref: https://people.csail.mit.edu/hubert/pyaudio/docs/#class-stream
+PA_manager – A reference to the managing PyAudio instance   
+rate – Sampling rate   
+channels – Number of channels   
+format – Sampling size and format. See PortAudio Sample Format.   
+input – Specifies whether this is an input stream. Defaults to False.   
+output – Specifies whether this is an output stream. Defaults to False.   
+input_device_index – Index of Input Device to use. Unspecified (or None) uses default device. Ignored if input is False.   
+output_device_index – Index of Output Device to use. Unspecified (or None) uses the default device. Ignored if output is False.   
+frames_per_buffer – Specifies the number of frames per buffer.   
